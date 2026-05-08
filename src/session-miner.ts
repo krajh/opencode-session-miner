@@ -77,7 +77,7 @@ function fetchSessionsForDay(db: Database, dateStr: string): Session[] {
   const endMs = dayEnd.getTime();
 
   const stmt = db.prepare(`
-    SELECT id, project_id, time_created, time_updated 
+    SELECT id, project_id, title, time_created, time_updated 
     FROM session 
     WHERE time_created >= ? AND time_created < ?
     ORDER BY time_created
@@ -86,6 +86,7 @@ function fetchSessionsForDay(db: Database, dateStr: string): Session[] {
   const rows = stmt.all(startMs, endMs) as Array<{
     id: string;
     project_id: string;
+    title: string;
     time_created: number;
     time_updated: number;
   }>;
@@ -95,6 +96,7 @@ function fetchSessionsForDay(db: Database, dateStr: string): Session[] {
     .map(row => ({
       id: row.id,
       project_id: row.project_id,
+      title: row.title || 'Untitled Session',
       time_created: row.time_created,
       time_updated: row.time_updated,
     }));

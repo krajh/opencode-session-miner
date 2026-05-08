@@ -2,7 +2,8 @@
  * Obsidian note writer utilities
  */
 
-import { join, existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
+import { join } from "path";
+import { existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
 import type { Session } from "./types";
 import { formatTimeForNote, formatDuration } from "./interval-merge";
 
@@ -53,7 +54,8 @@ export function writeDailyNote(
     content += `\n**Sessions**:\n`;
     for (const session of projectSessions) {
       const duration = ((session.time_updated - session.time_created) / 1000 / 60).toFixed(1);
-      content += `- [[${session.id}]] (${duration}m)\n`;
+      const title = session.title || 'Untitled Session';
+      content += `- **${title}** (${duration}m, [[${session.id}]])\n`;
     }
     content += `\n`;
   }
@@ -134,7 +136,8 @@ export function writeProjectNote(
   for (const session of sessions) {
     const duration = ((session.time_updated - session.time_created) / 1000 / 60).toFixed(1);
     const date = new Date(session.time_created).toISOString().split("T")[0];
-    content += `- [[${session.id}]] (${date}) - ${duration}m\n`;
+    const title = session.title || 'Untitled Session';
+    content += `- **${title}** (${duration}m, [[${session.id}]]) (${date})\n`;
   }
 
   // Dataview query for related daily notes

@@ -10,6 +10,7 @@ export interface TimeInterval {
 export interface Session {
   id: string;
   project_id: string;
+  title: string;
   time_created: number; // milliseconds
   time_updated: number; // milliseconds
 }

@@ -5,7 +5,8 @@
  * A method for organizing digital information by productivity consultant Tiago Forte
  */
 
-import { join, existsSync, mkdirSync, writeFileSync } from "fs";
+import { join } from "path";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import type { DayData, ProjectData } from "./types";
 import { formatDuration } from "./interval-merge";
 
