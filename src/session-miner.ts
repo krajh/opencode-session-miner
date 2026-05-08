@@ -161,7 +161,7 @@ function main() {
 
       const mergedTime = calculateMergedTime(intervals);
       dayData.set(dateStr, { mergedTime, sessionCount: sessions.length, sessions });
-
+      
       // Group by project
       for (const session of sessions) {
         if (!projectData.has(session.project_id)) {
@@ -171,8 +171,8 @@ function main() {
       }
 
       console.log(`  ${dateStr}: ${sessions.length} sessions, merged time: ${formatDuration(mergedTime)}`);
-      
-      // Write daily note
+       
+       // Write daily note (Obsidian export)
       writeDailyNote(dailyNotesPath, dateStr, mergedTime, sessions.length, sessions);
     } else {
       dayData.set(dateStr, { mergedTime: 0, sessionCount: 0, sessions: [] });
