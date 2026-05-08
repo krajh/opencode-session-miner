@@ -5,22 +5,23 @@ A toolkit for mining OpenCode sessions and generating beautiful Obsidian vault r
 ## ✨ Features
 
 - **Session Mining**: Extract sessions from OpenCode SQLite database
+- **Session Titles**: Displays session names (e.g., "Remove mempalace everywhere")
 - **Interval Merging**: Correctly calculate time when multiple agents run in parallel
-- **Obsidian Export**: Generate daily notes, weekly summaries, and PARA-organized project notes
+- **Obsidian Export**: Generate daily notes and weekly summaries (simplified - no individual session files)
 - **Cron Ready**: Automated weekly reports every Friday at 3PM
 - **PARA Method**: Organize notes into Projects, Areas, Resources, Archives
 
 ## 📊 What You Get
 
-Before (simple sum): 2033h  
-After (merged intervals): **692h** (66% reduction from parallel work accounting!)
+Before (simple sum): 2327h  
+After (merged intervals): **717h** (69.2% reduction from parallel work accounting!)
 
 ```
 Daily Notes/
   2026-05-07.md
-  - **Total Time**: 247.5 minutes (4.1 hours)
-  - **Total Sessions**: 46
-  - Session links with durations...
+  - **Total Time**: 4h 7m
+  - **Total Sessions**: 18
+  - Session titles with durations and project grouping...
 
 Weekly Summaries/
   2026-05-04_to_2026-05-10.md
@@ -39,7 +40,7 @@ Weekly Summaries/
 ### 2. Installation
 
 ```bash
-git clone https://github.com/yourusername/opencode-session-miner.git
+git clone https://github.com/krajh/opencode-session-miner.git
 cd opencode-session-miner
 bun install
 ```
@@ -75,40 +76,24 @@ bun run mine --start=2026-04-01 --end=2026-05-07
 ```
 opencode-session-miner/
 ├── src/
-│   ├── session-miner.ts      # Main mining logic
+│   ├── session-miner.ts      # Main mining logic (with session titles!)
 │   ├── interval-merge.ts     # Parallel session time calculator
-│   ├── obsidian-writer.ts   # Export to Obsidian format
-│   ├── para-organizer.ts     # PARA method organization
+│   ├── obsidian-writer.ts   # Export to Obsidian format (Daily/Weekly notes)
+│   ├── calculate-time.ts     # Time calculation utilities
+│   ├── overlap-analyzer.ts  # Measure parallel session overlap rates
+│   ├── debug-intervals.ts   # Interval debugging utilities
+│   ├── para-organizer.ts    # PARA method organization
 │   └── types.ts             # TypeScript type definitions
 ├── scripts/
-│   ├── setup.sh             # Initial setup script
+│   ├── setup-cron.sh        # Cron job setup script
 │   └── cron-wrapper.sh      # For automated weekly runs
-├── examples/                # Example outputs
-│   ├── daily-note.md
-│   ├── weekly-summary.md
-│   └── project-note.md
-├── docs/                    # Detailed documentation
-│   ├── setup.md
-│   ├── cron-setup.md
-│   └── obsidian-setup.md
+├── logs/                     # Cron execution logs
 ├── README.md
 ├── package.json
 └── tsconfig.json
 ```
 
 ## 🔧 Advanced Usage
-
-### Generate PARA Structure
-
-```bash
-bun run organize
-```
-
-This creates:
-- **Projects/**: Active development work
-- **Areas/**: Ongoing responsibilities  
-- **Resources/**: References and archives
-- **Archives/**: Completed work
 
 ### Custom Date Ranges
 
@@ -128,6 +113,14 @@ bun run calculate
 
 Outputs merged time to console without writing files.
 
+### Analyze Session Overlaps
+
+```bash
+bun run analyze
+```
+
+Shows parallel session statistics and overlap rates.
+
 ## ⏰ Automated Weekly Reports (Cron)
 
 Set up automatic weekly reports every Friday at 3PM:
@@ -137,15 +130,15 @@ bun run setup:cron
 ```
 
 This will:
-1. Create a wrapper script at `~/.config/opencode-session-miner/cron-wrapper.sh`
+1. Create a wrapper script at `scripts/cron-wrapper.sh`
 2. Add a cron job: `0 15 * * 5`
-3. Logs output to `~/.config/opencode-session-miner/logs/`
+3. Logs output to `logs/interval-merge.log`
 
 ### Manual Cron Setup
 
 ```bash
-# Add to crontab
-echo "0 15 * * 5 /path/to/opencode-session-miner/scripts/cron-wrapper.sh" | crontab -
+# Run setup script
+bash scripts/setup-cron.sh
 
 # Verify
 crontab -l
@@ -170,19 +163,19 @@ The algorithm:
 3. Merge overlapping intervals
 4. Sum merged interval durations
 
-### Database Schema
+### Session Titles
 
-OpenCode stores sessions in SQLite:
+The miner now fetches and displays session titles from the OpenCode database:
 
 ```sql
-SELECT id, project_id, time_created, time_updated 
+SELECT id, title, project_id, time_created, time_updated 
 FROM session 
 WHERE time_created >= ? AND time_created < ?
 ORDER BY time_created
 ```
 
-- `time_created` and `time_updated` are INTEGER (milliseconds since epoch)
-- Convert to seconds: `time_created / 1000.0`
+Daily notes show:
+- **Session Title** (duration, [[session-id]])
 
 ## 🎨 Customization
 
@@ -191,16 +184,10 @@ ORDER BY time_created
 Edit the templates in `src/obsidian-writer.ts`:
 
 ```typescript
-const DAILY_NOTE_TEMPLATE = `
-# {{date}}
-
-## Session Metrics
-- **Total Time**: {{total_time}}
-- **Total Sessions**: {{session_count}}
-
+// Daily notes show:
 ## What I Worked On
-{{sessions_by_project}}
-`;
+### project-id
+- **Session Title** (duration, [[session-id]])
 ```
 
 ### Add Custom Sections
@@ -213,6 +200,7 @@ Modify `src/para-organizer.ts` to add custom Obsidian sections like:
 ## 🐛 Troubleshooting
 
 ### "Database not found"
+
 ```bash
 # Find your OpenCode database
 find ~ -name "opencode.db" 2>/dev/null
@@ -222,6 +210,7 @@ echo "OPENCEDE_DB_PATH=/correct/path/opencode.db" >> .env
 ```
 
 ### "Obsidian vault not found"
+
 ```bash
 # Create the directory or update .env
 mkdir -p /path/to/your/vault
@@ -229,43 +218,62 @@ echo "OBSIDIAN_VAULT_PATH=/path/to/your/vault" >> .env
 ```
 
 ### Cron job not running
+
 ```bash
 # Check if cron service is running (WSL/Linux)
 sudo service cron status
 
 # Check logs
-cat ~/.config/opencode-session-miner/logs/interval-merge.log
+cat logs/interval-merge.log
+
+# Verify cron setup
+crontab -l
 ```
 
 ## 📚 Documentation
 
-- [Setup Guide](docs/setup.md) - Detailed installation steps
-- [Cron Setup](docs/cron-setup.md) - Automated weekly reports
-- [Obsidian Integration](docs/obsidian-setup.md) - Vault organization tips
-- [API Reference](docs/api.md) - TypeScript API documentation
+- Built-in help: `bun run mine --help`
+- Source code: Check `src/` for implementation details
+- Examples: See `Daily Notes/` and `Weekly Summaries/` in your vault
 
 ## 🤝 Sharing With Friends
 
 This project is designed to be shared! To share with friends:
 
-1. **Push to GitHub**:
+1. **Repo is already on GitHub**:
    ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: OpenCode Session Miner"
-   git remote add origin https://github.com/yourusername/opencode-session-miner.git
-   git push -u origin main
+   # Clone it
+   git clone https://github.com/krajh/opencode-session-miner.git
+   cd opencode-session-miner
+   bun install
    ```
 
 2. **Send them the repo link**:
    ```
    "Hey! Check out this tool I built for mining OpenCode sessions:
-   https://github.com/yourusername/opencode-session-miner
+   https://github.com/krajh/opencode-session-miner
    
    It correctly calculates time when you have parallel agents running!"
    ```
 
 3. **They follow the Quick Start** in this README ✅
+
+## 🤖 For AI Agents (Auto-Install)
+
+Want your AI agent (OpenCode, etc.) to install this automatically?
+
+**Just say to your AI**:
+> *"Hey, install the OpenCode Session Miner from https://github.com/krajh/opencode-session-miner - follow the AI-INSTALL.md instructions"*
+
+Your AI will:
+1. Clone the repo
+2. Install dependencies  
+3. Configure .env
+4. Test run
+5. Setup cron job
+6. Verify everything works ✅
+
+**Details**: See [AI-INSTALL.md](AI-INSTALL.md) for copy-pasteable instructions designed for AI agents.
 
 ## 📝 License
 
@@ -282,3 +290,11 @@ Built for [OpenCode](https://github.com/opencodeai/opencode) users who:
 ---
 
 **Made with ❤️ for the OpenCode community**
+
+## 🎯 Recent Updates (2026-05-08)
+
+- ✅ **Session titles now displayed** in Daily Notes
+- ✅ **Simplified structure** - removed individual session file exports
+- ✅ **Added overlap analyzer** - measure parallel session rates
+- ✅ **Updated cron setup** - uses repo-canonical scripts
+- ✅ **Pushed to GitHub** - https://github.com/krajh/opencode-session-miner
