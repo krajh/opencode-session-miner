@@ -41,23 +41,45 @@ bun install
 
 ---
 
-## Step 4: Configure Environment
+## Step 4: Ask User for Vault Path
+
+**IMPORTANT**: Before configuring, ask the user:
+
+> *"Where is your Obsidian vault located? (e.g., `/mnt/c/dev/Grimoire` or `/home/user/Documents/Vault`)"*
+
+Wait for their response, then use THAT path in the configuration below.
+
+---
+
+## Step 5: Configure Environment
 
 ```bash
-# Create .env file with default paths
+# Create .env file with user's vault path
+# (Replace VAULT_PATH_HERE with the path the user provided!)
 cat > .env << 'EOF'
 # OpenCode SQLite database path
 OPENCEDE_DB_PATH="/home/$(whoami)/.local/share/opencode/opencode.db"
 
-# Obsidian vault path (update this!)
-OBSIDIAN_VAULT_PATH="/mnt/c/dev/Grimoire"
+# Obsidian vault path (user provided)
+OBSIDIAN_VAULT_PATH="VAULT_PATH_HERE"
 
 # Optional: Date range (defaults to last 30 days)
 # START_DATE="2026-04-07"
 # END_DATE="2026-05-07"
 EOF
 
-echo "✓ Created .env file - please verify OBSIDIAN_VAULT_PATH is correct!"
+# Now replace VAULT_PATH_HERE with actual path
+# (AI agent should use: sed -i "s|VAULT_PATH_HERE|$USER_VAULT_PATH|g" .env)
+
+echo "✓ Created .env file with your vault path: $USER_VAULT_PATH"
+```
+
+**For AI Agents**: Replace `VAULT_PATH_HERE` with the actual path the user provided.
+
+Example:
+```bash
+# If user said "/mnt/c/dev/MyVault"
+sed -i "s|VAULT_PATH_HERE|/mnt/c/dev/MyVault|g" .env
 ```
 
 ---
