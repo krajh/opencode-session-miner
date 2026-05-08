@@ -105,8 +105,86 @@ export function writeWeeklySummary(
   content += `LIST\nFROM "Daily Notes"\nWHERE file.name >= "${weekStart}" AND file.name <= "${weekEnd}"\nSORT file.name ASC\n`;
   content += `\`\`\`\n`;
 
+  // Add link to Performance Reflection
+  const reflectionFilename = `${weekStart}_to_${weekEnd}_reflection.md`;
+  content += `\n## Performance Reflection\n\n`;
+  content += `[[${reflectionFilename}|📊 Weekly Performance Reflection]]\n`;
+
   writeFileSync(notePath, content, "utf-8");
   console.log(`  [✓] Updated ${weekStart} summary: ${formatDuration(mergedTime)}`);
+
+  // Auto-generate Performance Reflection note
+  writeWeeklyPerformanceReflection(weeklyPath, weekStart, weekEnd, timeStr, sessionCount);
+}
+
+/**
+ * Write or update a weekly performance reflection based on template
+ */
+export function writeWeeklyPerformanceReflection(
+  weeklyPath: string,
+  weekStart: string,
+  weekEnd: string,
+  totalTime: string,
+  sessionCount: number
+): void {
+  const reflectionFilename = `${weekStart}_to_${weekEnd}_reflection.md`;
+  const reflectionPath = join(weeklyPath, reflectionFilename);
+
+  // Check if reflection already exists
+  if (existsSync(reflectionPath)) {
+    console.log(`  [→] Performance reflection already exists for ${weekStart}`);
+    return;
+  }
+
+  // Read template (configurable via env var)
+  const templatePath = process.env.PERFORMANCE_TEMPLATE_PATH || 
+    join(process.env.OBSIDIAN_VAULT_PATH || "", "Templates/Weekly Performance Reflection.md");
+  let templateContent = "";
+  
+  try {
+    templateContent = readFileSync(templatePath, "utf-8");
+  } catch (error) {
+    console.error(`  [✗] Error reading template: ${error}`);
+    return;
+  }
+
+  // Replace template variables
+  let content = templateContent;
+  
+  // Date replacements
+  content = content.replace(/\{\{date:YYYY-MM-DD\}\}/g, weekStart);
+  content = content.replace(/\{\{date\+6d:YYYY-MM-DD\}\}/g, weekEnd);
+  content = content.replace(/\{\{time:HH:mm\}\}/g, new Date().toTimeString().slice(0,5));
+  
+  // Summary data replacements
+  content = content.replace(/\(\/\/auto-filled from weekly summary\)/g, 
+    `(auto-filled: ${totalTime}, ${sessionCount} sessions)`);
+  content = content.replace(/\*\*Total Time\*\*: \(auto-filled from weekly summary\)/g, 
+    `**Total Time**: ${totalTime}`);
+  content = content.replace(/\*\*Sessions\*\*: \(auto-filled from weekly summary\)/g, 
+    `**Sessions**: ${sessionCount}`);
+
+  // Replace links to daily notes (simplified - just add the range)
+  content = content.replace(/\{\{date\+1d:YYYY-MM-DD\}\}/g, 
+    addDays(weekStart, 1));
+  content = content.replace(/\{\{date\+2d:YYYY-MM-DD\}\}/g, 
+    addDays(weekStart, 2));
+  content = content.replace(/\{\{date\+3d:YYYY-MM-DD\}\}/g, 
+    addDays(weekStart, 3));
+  content = content.replace(/\{\{date\+4d:YYYY-MM-DD\}\}/g, 
+    addDays(weekStart, 4));
+
+  writeFileSync(reflectionPath, content, "utf-8");
+  console.log(`  [✓] Created performance reflection: ${reflectionFilename}`);
+}
+
+/**
+ * Helper: Add days to a date string (YYYY-MM-DD)
+ */
+function addDays(dateStr: string, days: number): string {
+  const date = new Date(dateStr);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().split("T")[0] || dateStr;
 }
 
 /**

@@ -8,6 +8,7 @@ A toolkit for mining OpenCode sessions and generating beautiful Obsidian vault r
 - **Session Titles**: Displays session names (e.g., "Remove mempalace everywhere")
 - **Interval Merging**: Correctly calculate time when multiple agents run in parallel
 - **Obsidian Export**: Generate daily notes and weekly summaries (simplified - no individual session files)
+- **📊 Weekly Performance Reflection**: Auto-generate weekly performance reflection notes with customizable templates
 - **Cron Ready**: Automated weekly reports every Friday at 3PM
 - **PARA Method**: Organize notes into Projects, Areas, Resources, Archives
 
@@ -176,6 +177,67 @@ ORDER BY time_created
 
 Daily notes show:
 - **Session Title** (duration, [[session-id]])
+
+## 📊 Weekly Performance Reflection
+
+Automatically generate weekly performance reflection notes to track your growth against any performance framework (10-dimension, OKRs, custom criteria).
+
+### What You Get
+
+Each week, a reflection note is created at `Weekly Summaries/[start]_to_[end]_reflection.md` with:
+
+- **10 Performance Dimensions** (customizable via template):
+  1. Outcomes & Impact
+  2. Reliability & Consistency
+  3. Communication Effectiveness
+  4. Collaboration
+  5. Culture in Action
+  6. Inspiring & Mobilising Others
+  7. Growth Agility
+  8. Innovation & Adaptive Problem-Solving
+  9. Risk Management & Quality Assurance
+  10. Decision Making
+
+- **Weekly Summary**: Auto-filled with total time and session count
+- **Evidence Prompts**: Each dimension includes prompts to log weekly evidence
+- **Self-Rating**: Space to rate yourself Strong/Exceptional per dimension
+- **Links**: Auto-linked to weekly summary and daily notes
+
+### Template Configuration
+
+Set your template path in `.env`:
+
+```bash
+# Custom template path (optional)
+PERFORMANCE_TEMPLATE_PATH=/path/to/your/template.md
+
+# Or use default (looks in your vault's Templates/ folder)
+# Default: {OBSIDIAN_VAULT_PATH}/Templates/Weekly Performance Reflection.md
+```
+
+### Custom Templates
+
+The repo includes a generic template at `examples/Weekly Performance Reflection - Generic.md` with 8 dimensions. To use it:
+
+```bash
+cp examples/Weekly\ Performance\ Reflection\ -\ Generic.md /mnt/c/dev/Grimoire/Templates/Weekly\ Performance\ Reflection.md
+```
+
+Or create your own template using the variable placeholders:
+- `{{date:YYYY-MM-DD}}` - Week start date
+- `{{date+6d:YYYY-MM-DD}}` - Week end date
+- `{{time}}` - Placeholder for session data
+
+### Example Use Case
+
+Track your performance growth over time:
+- **Weekly**: Fill in evidence for each dimension
+- **Quarterly**: Review weeks of data to see patterns
+- **Result**: Concrete evidence of impact, gaps, and growth areas
+
+> **Pro Tip**: Align your template dimensions to your company's performance framework for maximum value!
+
+---
 
 ## 🎨 Customization
 
