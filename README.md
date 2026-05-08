@@ -290,11 +290,3 @@ Built for [OpenCode](https://github.com/opencodeai/opencode) users who:
 ---
 
 **Made with ❤️ for the OpenCode community**
-
-## 🎯 Recent Updates (2026-05-08)
-
-- ✅ **Session titles now displayed** in Daily Notes
-- ✅ **Simplified structure** - removed individual session file exports
-- ✅ **Added overlap analyzer** - measure parallel session rates
-- ✅ **Updated cron setup** - uses repo-canonical scripts
-- ✅ **Pushed to GitHub** - https://github.com/krajh/opencode-session-miner
