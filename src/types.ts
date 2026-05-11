@@ -10,9 +10,10 @@ export interface TimeInterval {
 export interface Session {
   id: string;
   project_id: string;
+  project_name?: string;
   title: string;
-  time_created: number; // milliseconds
-  time_updated: number; // milliseconds
+  time_created: number;
+  time_updated: number;
 }
 
 export interface DayData {

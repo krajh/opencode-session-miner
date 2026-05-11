@@ -23,11 +23,11 @@ import { organizePARA } from "./para-organizer";
 
 // Load config from environment or use defaults
 const config: MinerConfig = {
-  dbPath: process.env.OPENCEDE_DB_PATH || join(
-    process.env.HOME || "/home/brisingr",
+  dbPath: process.env.OPENCODE_DB_PATH || join(
+    process.env.HOME || "",
     ".local/share/opencode/opencode.db"
   ),
-  vaultPath: process.env.OBSIDIAN_VAULT_PATH || "/mnt/c/dev/Grimoire",
+  vaultPath: process.env.OBSIDIAN_VAULT_PATH || "",
   startDate: process.env.START_DATE,
   endDate: process.env.END_DATE,
   days: process.env.DAYS ? parseInt(process.env.DAYS) : 30,
@@ -77,10 +77,18 @@ function fetchSessionsForDay(db: Database, dateStr: string): Session[] {
   const endMs = dayEnd.getTime();
 
   const stmt = db.prepare(`
-    SELECT id, project_id, title, time_created, time_updated 
-    FROM session 
-    WHERE time_created >= ? AND time_created < ?
-    ORDER BY time_created
+    SELECT 
+      s.id, 
+      s.project_id, 
+      s.title, 
+      s.time_created, 
+      s.time_updated,
+      p.name as project_name,
+      p.worktree as project_worktree
+    FROM session s
+    LEFT JOIN project p ON s.project_id = p.id
+    WHERE s.time_created >= ? AND s.time_created < ?
+    ORDER BY s.time_created
   `);
 
   const rows = stmt.all(startMs, endMs) as Array<{
@@ -89,17 +97,34 @@ function fetchSessionsForDay(db: Database, dateStr: string): Session[] {
     title: string;
     time_created: number;
     time_updated: number;
+    project_name: string | null;
+    project_worktree: string | null;
   }>;
 
   return rows
     .filter(row => row.time_updated > row.time_created)
-    .map(row => ({
-      id: row.id,
-      project_id: row.project_id,
-      title: row.title || 'Untitled Session',
-      time_created: row.time_created,
-      time_updated: row.time_updated,
-    }));
+    .map(row => {
+      // Derive project display name from worktree path or name
+      let projectDisplayName = row.project_id;
+      if (row.project_worktree) {
+        const parts = row.project_worktree.split('/');
+        const lastPart = parts[parts.length - 1];
+        if (lastPart && lastPart !== '') {
+          projectDisplayName = lastPart;
+        }
+      } else if (row.project_name) {
+        projectDisplayName = row.project_name;
+      }
+      
+      return {
+        id: row.id,
+        project_id: row.project_id,
+        project_name: projectDisplayName,
+        title: row.title || 'Untitled Session',
+        time_created: row.time_created,
+        time_updated: row.time_updated,
+      };
+    });
 }
 
 // Get date range

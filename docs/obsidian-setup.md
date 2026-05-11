@@ -21,7 +21,7 @@ Obsidian is a powerful knowledge management tool that works with plain text Mark
 mkdir -p /path/to/your/vault
 
 # Option B: Use existing vault
-# Just find its path, e.g., /mnt/c/dev/Grimoire
+# Just find its path, e.g., /path/to/your/vault
 ```
 
 ### 2. Configure OpenCode Session Miner

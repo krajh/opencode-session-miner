@@ -52,10 +52,10 @@ Create a `.env` file (or set environment variables):
 
 ```bash
 # OpenCode SQLite database path
-OPENCEDE_DB_PATH="/home/youruser/.local/share/opencode/opencode.db"
+OPENCODE_DB_PATH="$HOME/.local/share/opencode/opencode.db"
 
 # Obsidian vault path (where notes will be exported)
-OBSIDIAN_VAULT_PATH="/mnt/c/dev/Grimoire"
+OBSIDIAN_VAULT_PATH="/path/to/your/obsidian/vault"
 
 # Optional: Date range (defaults to last 30 days)
 # START_DATE="2026-04-07"
@@ -217,10 +217,10 @@ PERFORMANCE_TEMPLATE_PATH=/path/to/your/template.md
 
 ### Custom Templates
 
-The repo includes a generic template at `examples/Weekly Performance Reflection - Generic.md` with 8 dimensions. To use it:
+The repo includes a generic template at `examples/Weekly Performance Reflection - Generic.md`. To use it:
 
 ```bash
-cp examples/Weekly\ Performance\ Reflection\ -\ Generic.md /mnt/c/dev/Grimoire/Templates/Weekly\ Performance\ Reflection.md
+cp "examples/Weekly Performance Reflection - Generic.md" "$OBSIDIAN_VAULT_PATH/Templates/Weekly Performance Reflection.md"
 ```
 
 Or create your own template using the variable placeholders:
@@ -268,7 +268,7 @@ Modify `src/para-organizer.ts` to add custom Obsidian sections like:
 find ~ -name "opencode.db" 2>/dev/null
 
 # Set correct path in .env
-echo "OPENCEDE_DB_PATH=/correct/path/opencode.db" >> .env
+echo "OPENCODE_DB_PATH=/correct/path/opencode.db" >> .env
 ```
 
 ### "Obsidian vault not found"

@@ -45,7 +45,7 @@ bun install
 
 **IMPORTANT**: Before configuring, ask the user:
 
-> *"Where is your Obsidian vault located? (e.g., `/mnt/c/dev/Grimoire` or `/home/user/Documents/Vault`)"*
+> *"Where is your Obsidian vault located? (e.g., `/mnt/c/dev/Vault`, `/home/user/Documents/Vault`, or `C:\Users\Name\Documents\Vault`)"*
 
 Wait for their response, then use THAT path in the configuration below.
 
@@ -58,9 +58,9 @@ Wait for their response, then use THAT path in the configuration below.
 # (Replace VAULT_PATH_HERE with the path the user provided!)
 cat > .env << 'EOF'
 # OpenCode SQLite database path
-OPENCEDE_DB_PATH="/home/$(whoami)/.local/share/opencode/opencode.db"
+OPENCODE_DB_PATH="$HOME/.local/share/opencode/opencode.db"
 
-# Obsidian vault path (user provided)
+# Obsidian vault path (user provided - REPLACE VAULT_PATH_HERE)
 OBSIDIAN_VAULT_PATH="VAULT_PATH_HERE"
 
 # Optional: Date range (defaults to last 30 days)
@@ -78,13 +78,13 @@ echo "✓ Created .env file with your vault path: $USER_VAULT_PATH"
 
 Example:
 ```bash
-# If user said "/mnt/c/dev/MyVault"
-sed -i "s|VAULT_PATH_HERE|/mnt/c/dev/MyVault|g" .env
+# If user said "/home/user/Documents/MyVault"
+sed -i "s|VAULT_PATH_HERE|/home/user/Documents/MyVault|g" .env
 ```
 
 ---
 
-## Step 5: Test Run
+## Step 6: Test Run
 
 ```bash
 # Run once to verify it works
@@ -97,7 +97,7 @@ Expected output:
 OpenCode Session Miner
 ============================================================
 Database: /home/user/.local/share/opencode/opencode.db
-Vault: /mnt/c/dev/Grimoire
+Vault: /path/to/user/vault
 
 [1/4] Fetching sessions from database...
 ...
@@ -106,29 +106,30 @@ Vault: /mnt/c/dev/Grimoire
 
 ---
 
-## Step 6: Setup Automated Weekly Reports
+## Step 7: Setup Automated Weekly Reports
 
 ```bash
-# This sets up a cron job to run every Friday at 3PM
+# Set your vault path and run setup
+export OBSIDIAN_VAULT_PATH="VAULT_PATH_HERE"  # Replace with user's vault path
 bash scripts/setup-cron.sh
 ```
 
 Expected output:
 ```
-✓ Created cron wrapper: /home/user/opencode-session-miner/scripts/cron-wrapper.sh
-✓ Added cron job: 0 15 * * 5 /home/user/opencode-session-miner/scripts/cron-wrapper.sh
+✓ Cron wrapper ready: /path/to/repo/scripts/cron-wrapper.sh
+✓ Added cron job: 0 15 * * 5 /path/to/repo/scripts/cron-wrapper.sh
 ```
 
 ---
 
-## Step 7: Verify Installation
+## Step 8: Verify Installation
 
 ```bash
 # Check cron job
 crontab -l | grep session-miner
 
-# Check Obsidian vault
-ls -la /mnt/c/dev/Grimoire/Daily\ Notes/ | head -5
+# Check Obsidian vault (use user's vault path)
+ls -la "$OBSIDIAN_VAULT_PATH/Daily Notes/" | head -5
 
 # Check logs (after Friday)
 cat logs/interval-merge.log
@@ -152,7 +153,7 @@ find ~ -name "opencode.db" 2>/dev/null
 
 ### "Obsidian vault not found"
 ```bash
-mkdir -p /mnt/c/dev/Grimoire
+mkdir -p "$OBSIDIAN_VAULT_PATH"
 # Or update .env with correct path
 ```
 

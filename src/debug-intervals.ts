@@ -125,8 +125,8 @@ function analyzeDayDetailed(dbPath: string, targetDate: string) {
 }
 
 function main() {
-  const dbPath = process.env.OPENCEDE_DB_PATH || 
-    "/home/brisingr/.local/share/opencode/opencode.db";
+  const dbPath = process.env.OPENCODE_DB_PATH || 
+    join(process.env.HOME || "", ".local/share/opencode/opencode.db");
   
   console.log("============================================================");
   console.log("Interval Merging Debug Tool");

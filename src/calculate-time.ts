@@ -14,8 +14,8 @@ import {
   calculateTimeSaved 
 } from "./interval-merge";
 
-const DB_PATH = process.env.OPENCEDE_DB_PATH || join(
-  process.env.HOME || "/home/brisingr",
+const DB_PATH = process.env.OPENCODE_DB_PATH || join(
+  process.env.HOME || "",
   ".local/share/opencode/opencode.db"
 );
 

@@ -23,11 +23,11 @@ export function writeDailyNote(
   // Group sessions by project
   const projectGroups: Map<string, Session[]> = new Map();
   for (const session of sessions) {
-    const projectId = session.project_id || "unknown";
-    if (!projectGroups.has(projectId)) {
-      projectGroups.set(projectId, []);
+    const projectKey = session.project_name || session.project_id || "unknown";
+    if (!projectGroups.has(projectKey)) {
+      projectGroups.set(projectKey, []);
     }
-    projectGroups.get(projectId)!.push(session);
+    projectGroups.get(projectKey)!.push(session);
   }
 
   // Build note content
@@ -41,12 +41,12 @@ export function writeDailyNote(
   // What I Worked On section
   content += `## What I Worked On\n\n`;
   
-  for (const [projectId, projectSessions] of projectGroups) {
-    const projectTime = projectSessions.reduce((sum, s) => {
+  for (const [projectName, projectSessions] of projectGroups) {
+      const projectTime = projectSessions.reduce((sum, s) => {
       return sum + (s.time_updated - s.time_created) / 1000;
     }, 0);
     
-    content += `### ${projectId}\n`;
+    content += `### ${projectName}\n`;
     content += `- Sessions: ${projectSessions.length}\n`;
     content += `- Time: ${formatDuration(projectTime)}\n`;
     
