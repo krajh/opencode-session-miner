@@ -60,19 +60,9 @@ export function writeDailyNote(
     content += `\n`;
   }
 
-  // If note already exists, try to preserve other content
-  if (existsSync(notePath)) {
-    const existing = readFileSync(notePath, "utf-8");
-    
-    // Replace Session Metrics section if it exists
-    const metricsPattern = /## Session Metrics[\s\S]*?(?=\n##|$)/;
-    if (metricsPattern.test(existing)) {
-      const newMetrics = `## Session Metrics\n- **Total Time**: ${timeStr}\n- **Total Sessions**: ${sessionCount}\n`;
-      content = existing.replace(metricsPattern, newMetrics);
-    } else {
-      content = existing + "\n" + content;
-    }
-  }
+  // Always write fresh content (delete old format if exists)
+  // This ensures session titles are always displayed correctly
+  // Note: If you want to preserve custom content, add it to content before this point
 
   writeFileSync(notePath, content, "utf-8");
   console.log(`  [✓] Updated ${dateStr}.md: ${formatDuration(mergedTime)}`);
